@@ -1,6 +1,22 @@
 #!/usr/bin/env python2
 
 import sys, os, getopt, sniper_lib
+import pickle
+
+
+def pickle_dump_obj(
+    an_object,
+    resultsdir,
+    pkl_filename,
+):
+    pkl_filepath = os.path.join(
+        resultsdir,
+        pkl_filename,
+    )
+    print "pickle dump: ", pkl_filepath
+
+    with open(pkl_filepath, "w") as fopen:
+        pickle.dump(an_object, fopen)
 
 
 def generate_simout(jobid = None, resultsdir = None, partial = None, output = sys.stdout, silent = False):
@@ -12,6 +28,7 @@ def generate_simout(jobid = None, resultsdir = None, partial = None, output = sy
       print 'Failed to generated sim.out:', e
     return
 
+  print "results", res
   results = res['results']
   config = res['config']
   ncores = int(config['general/total_cores'])
@@ -183,6 +200,11 @@ def generate_simout(jobid = None, resultsdir = None, partial = None, output = sy
   for j, line in enumerate(lines):
     output.write(' | '.join([ ('%%%s%us' % ((j==0 or i==0) and '-' or '', widths[i])) % line[i] for i in range(len(line)) ]) + '\n')
 
+  config_pkl_filename = "config.pkl"
+  pickle_dump_obj(config, resultsdir, config_pkl_filename)
+
+  result_pkl_filename = "result.pkl"
+  pickle_dump_obj(results, resultsdir, result_pkl_filename)
 
 
 if __name__ == '__main__':
